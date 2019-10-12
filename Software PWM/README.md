@@ -1,33 +1,10 @@
 # Software PWM
-Most microprocessors will have a Timer module, but depending on the device, some may not come with pre-built PWM modules. Instead, you may have to use software techniques to synthesize PWM on your own.
+An LED is turn on at 50% duty cycle to begin. Pressing the button increases the duty cycle of the PWM signal, increasing its brightness. A second LED lights up when the button is pressed as well. When the button is pressed when the brightness is at 100%, it goes to zero brightness. Button debouncing is used to ensure each button press is accounted for exactly once.
 
-## Task
-Generate a 1kHz PWM signal with a duty cycle between 0% and 100%. Upon processor start up, PWM one of the on-board LEDs at a 50% duty cycle. Upon pressing one of the on-board buttons, the duty cycle of the LED should increase by 10%. Once you have reached 100%, the duty cycle should go back to 0% on the next button press. You'll also need to implement the other LED to light up when the Duty Cycle button is depressed and turns back off when it is let go. This is to help you figure out if the button has triggered multiple interrupts.
+The LED and button pins can be changed with by chaning the #defines which defines generic names for GPIO registers and pins. The debounce threshold is currently at 5ms and can be changed by changing the TCCR0A value. This value can be calculated by dividing the desired threshold in seconds by the CPU speed (currently 1 MHz).
 
-## Deliverables
-You will need to have two folders in this repository, one for each of the processors that you used for this part of the lab. Remember to replace this README with your own.
+The PWM signal operates at 1 kHz. This can be changed by changing the TCCR1A value.
 
-### Hints
-You really, really should hook up the output of your LED pin to an oscilloscope to make sure that the duty cycle is accurate. Also, since you are going to be doing a lot of initialization, it would be helpful for all persons involved if you created your main function similarly to:
-
-```c
-int main(void)
-{
-	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
-	LEDSetup(); // Initialize our LEDS
-	ButtonSetup();  // Initialize our button
-	TimerA0Setup(); // Initialize Timer0
-	TimerA1Setup(); // Initialize Timer1
-	__bis_SR_register(LPM0_bits + GIE);       // Enter LPM0 w/ interrupt
-}
-```
-
-This way, each of the steps in initialization can be isolated for easier understanding and debugging.
-
-
-## Extra Work
-### Linear Brightness
-Much like every other things with humans, not everything we interact with we perceive as linear. For senses such as sight or hearing, certain features such as volume or brightness have a logarithmic relationship with our senses. Instead of just incrementing by 10%, try making the brightness appear to change linearly.
-
-### Power Comparison
-Since you are effectively turning the LED off for some period of time, it should follow that the amount of power you are using over time should be less. Using Energy Trace, compare the power consumption of the different duty cycles. What happens if you use the pre-divider in the timer module for the PWM (does it consume less power)?
+### Differences Between Implementation for each Processor
+- The FR6989 needs the line `PM5CTL0 &= ~LOCKLPM5`, which disables the GPIO pins' default high impedance state
+- The MSP-EXT430G2ET board (G2553 processor) includes a pullup resistor on the button. The MSP-EXP430FR6989 board does not. Therefore, the internal pullup resistor for the button gpio pin is enable in the FR6989 program.
