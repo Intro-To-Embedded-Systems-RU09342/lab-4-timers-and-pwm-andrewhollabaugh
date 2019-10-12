@@ -98,7 +98,7 @@ void __attribute__((interrupt(TIMER0_A0_VECTOR))) timer0_A0 (void)
         else
         {
             TA1CCR1 = 0; //set duty cycle back to 0
-            LED1_OUT_R &= ~(1 << LED1_PIN); //turn off led0
+            LED0_OUT_R &= ~(1 << LED0_PIN); //turn off led0
             TA1CTL &= ~MC_3; //stop timer
         }
     }
